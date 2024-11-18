@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <!-- <button>新增文章</button> -->
+    <div class="wrapper cd-content">
+        <div>test</div>
+    </div>
+
+
+    <script>
+
+        var observeDOM = (function () {
+            var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+
+            return function (obj, callback) {
+                if (!obj || obj.nodeType !== 1) {
+                    return;
+                }
+
+                if (MutationObserver) {
+                    // define a new observer
+                    var mutationObserver = new MutationObserver(callback);
+
+                    // have the observer observe for changes in children
+                    mutationObserver.observe(obj, { childList: true, subtree: true });
+                    return mutationObserver;
+                } else if (window.addEventListener) { // browser support fallback
+                    obj.addEventListener('DOMNodeInserted', callback, false);
+                    obj.addEventListener('DOMNodeRemoved', callback, false);
+                }
+            }
+        })();
+
+
+        //模擬新增文章
+        // let startIndex = 1;
+        // document.querySelector('body > button').onclick = function (e) {
+        //     document.querySelector('.wrapper.cd-content').insertAdjacentHTML(
+        //         'beforeend', 
+        //         `<main id="article-${ Math.random() }">這是第${ startIndex }篇文章</main>`
+        //     );
+        //     startIndex++;
+        // };
+
+        // 偵測main新增
+        observeDOM(document.querySelector('.wrapper.cd-content'), function (m) {
+            m.forEach(record =>{ 
+                if(record.addedNodes.length){
+                    record.addedNodes.forEach(item => {
+                        if(item.tagName === 'MAIN' && item.id){
+                            console.log(item.id);
+
+                            //GA程式碼... 傳送文章ID給GA
+                        }
+                    });
+                }
+            });
+        });
+
+
+    </script>
+
+</body>
+
+</html>
