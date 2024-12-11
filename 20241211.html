@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- https://www.uho.com.tw/article-64785.html -->
+    <style>
+        body {
+            height: 2000px;
+        }
+    </style>
+</head>
+
+<body class="scroll-down">
+    <!-- <input type="hidden" id="hide-this-url" value="64785"> -->
+    <input type="hidden" id="hide-this-url" value="https://www.uho.com.tw/article-64785.html">
+    <div id="topScrollProgressBar" style="width: 37%;"></div>
+    <script>
+
+        var articles = {}; // 儲存所有文章與狀態
+
+        /**取得當下文章編號 return 
+         * @returns String
+         */
+        function getCurrentArticleId() {
+            const articleUrl = document.getElementById('hide-this-url').value;
+            return (articleUrl.replace('.html', '').slice(-5));
+        }
+
+
+        /** 取得當前文章進度條
+         * @returns Number
+         */
+        function getScrollValue() {
+            var _width = document.getElementById('topScrollProgressBar').style.width;
+            return parseInt(_width);
+        }
+
+        function pushEventToDataLayer(articleId, progress) {
+            // var article_id = articleId.replace('main', 'article')
+            article_id = 'article-' + article_id;
+            // console.log('推送事件:', articleId, progress);
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+                event: 'article_scroll',
+                scroll_article_id: article_id,
+                percentage: progress + '%',
+            });
+        }
+
+
+        function checkScrollProgress() {
+
+            var body = document.body;
+            // 檢查 <body> 是否符合條件
+            if (!body.classList.contains("scroll-down")) {
+                console.log('不符合推送條件，跳過檢查');
+                return;
+            }
+
+            var progressBar = document.getElementById('topScrollProgressBar');
+            if (!progressBar) {
+                console.warn('#topScrollProgressBar 元素不存在');
+                return;
+            }
+
+            var _currentProgress = getScrollValue();
+            if (isNaN(_currentProgress)) {
+                console.warn('無法獲取進度條寬度');
+                return;
+            }
+
+            var _currentId = (getCurrentArticleId().toString());
+
+
+            if (articles[_currentId]) {
+
+                if (_currentProgress >= 25 && !articles[_currentId][0]) {
+                    pushEventToDataLayer(_currentId, 25);
+                    articles[_currentId][0] = true;
+                    console.log(25);
+                }
+
+                if (_currentProgress >= 50 && !articles[_currentId][1]) {
+                    pushEventToDataLayer(_currentId, 50);
+                    articles[_currentId][1] = true;
+                    console.log(50);
+                }
+
+                if (_currentProgress >= 75 && !articles[_currentId][2]) {
+                    pushEventToDataLayer(_currentId, 75);
+                    articles[_currentId][2] = true;
+                    console.log(70);
+                }
+
+                if (_currentProgress >= 100 && !articles[_currentId][3]) {
+                    pushEventToDataLayer(_currentId, 100);
+                    articles[_currentId][3] = true;
+                    console.log(100);
+                }
+
+            } else {
+                articles[_currentId] = [false, false, false, false,];
+            }
+
+        };
+
+        // 初始化文章列表
+        // function initArticles() {
+            // articles = document.querySelectorAll('main');
+            // console.log('初始化文章列表:', articles);
+
+            // articles.forEach(function (article) {
+            //     var articleId = article.id || 'article-' + Math.random(); // 確保每篇文章都有唯一 ID
+            //     progressSent[articleId] = { 25: false, 50: false, 75: false, 100: false }; // 初始化進度狀態
+            //     // console.log('文章初始化:', articleId);
+            // });
+        // }
+
+        // 監聽滾動事件並用 requestAnimationFrame 提高效能
+        function handleScroll() {
+            requestAnimationFrame(checkScrollProgress); // 使用 requestAnimationFrame 提高效能
+        }
+
+        // 檢查滾動進度
+        // function checkScrollProgress() {
+        //     var body = document.body;
+        //     // 檢查 <body> 是否符合條件
+        //     if (!body.classList.contains("scroll-down")) {
+        //         // console.log('不符合推送條件，跳過檢查');
+        //         return;
+        //     }
+
+        //     var progressBar = document.getElementById('topScrollProgressBar');
+        //     if (!progressBar) {
+        //         console.warn('#topScrollProgressBar 元素不存在');
+        //         return;
+        //     }
+
+        // var width = parseInt(progressBar.style.width.replace('%', '')) || 0;
+        // if (isNaN(width)) {
+        //     // console.warn('無法獲取進度條寬度');
+        //     return;
+        // }
+
+        // articles.forEach(function (article) {
+        //     var rect = article.getBoundingClientRect();
+        //     var articleId = article.id || 'unknown-article';
+
+        //     // 檢查是否有部分文章在視窗內
+        //     if (rect.top < window.innerHeight && rect.bottom > 0) {
+        //         //console.log('當前可見文章:', articleId);
+
+        //         // 推送進度事件
+        //         if (width >= 25 && width < 50 && !progressSent[articleId][25]) {
+        //             pushEventToDataLayer(articleId, 25);
+        //             progressSent[articleId][25] = true;
+        //         } else if (width >= 50 && width < 75 && !progressSent[articleId][50]) {
+        //             pushEventToDataLayer(articleId, 50);
+        //             progressSent[articleId][50] = true;
+        //         } else if (width >= 75 && width < 100 && !progressSent[articleId][75]) {
+        //             pushEventToDataLayer(articleId, 75);
+        //             progressSent[articleId][75] = true;
+        //         } else if (width >= 100 && !progressSent[articleId][100]) {
+        //             pushEventToDataLayer(articleId, 100);
+        //             progressSent[articleId][100] = true;
+        //         }
+        //     }
+        // });
+        // }
+
+
+        document.addEventListener('scroll', handleScroll);
+        // initArticles();
+    </script>
+</body>
+
+</html>
